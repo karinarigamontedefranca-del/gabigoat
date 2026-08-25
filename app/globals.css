@@ -93,16 +93,23 @@ body {
   75% { transform: scale(0.97) rotate(-1deg); }
   100% { opacity: 1; transform: scale(1) rotate(0deg); }
 }
-.animate-logo-in {
-  animation: logo-in 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
-.animate-float {
-  animation: float 3.2s ease-in-out 0.9s infinite;
+
+.animate-logo-entrance {
+  animation:
+    logo-in 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    wiggle 0.6s ease-in-out 0.95s 2,
+    float 3.2s ease-in-out 2.2s infinite;
 }
 
 @keyframes fade-in {
@@ -110,7 +117,16 @@ body {
   100% { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in {
-  animation: fade-in 0.6s ease-out 0.5s both;
+  animation: fade-in 0.6s ease-out 0.9s both;
+}
+
+@keyframes letter-bounce {
+  0% { opacity: 0; transform: translateY(10px) scale(0.7); }
+  60% { opacity: 1; transform: translateY(-3px) scale(1.05); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-letter-bounce {
+  animation: letter-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 @keyframes ping-slow {
@@ -135,6 +151,32 @@ body {
   animation: spin-slow 6s linear infinite;
 }
 
+@keyframes spin-reverse {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+.animate-spin-reverse {
+  animation: spin-reverse 9s linear infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+.animate-glow-pulse {
+  animation: glow-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes particle-rise {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 0.8; }
+  100% { transform: translateY(-420px) scale(0.4); opacity: 0; }
+}
+.animate-particle-rise {
+  animation: particle-rise linear infinite;
+}
+
 @keyframes sparkle {
   0%, 100% { opacity: 0; transform: scale(0.4) rotate(var(--r, 0deg)) translate(170px) rotate(calc(var(--r, 0deg) * -1)); }
   50% { opacity: 1; transform: scale(1.4) rotate(var(--r, 0deg)) translate(170px) rotate(calc(var(--r, 0deg) * -1)); }
@@ -152,9 +194,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-logo-in, .animate-fade-in, .animate-ping-slow, .animate-ping-slower,
-  .animate-ping-slowest, .animate-spin-slow, .animate-sparkle, .animate-float,
-  .animate-shimmer, .goat-mark {
+  .animate-logo-entrance, .animate-fade-in, .animate-ping-slow, .animate-ping-slower,
+  .animate-ping-slowest, .animate-spin-slow, .animate-spin-reverse, .animate-sparkle,
+  .animate-shimmer, .animate-glow-pulse, .animate-particle-rise, .animate-letter-bounce,
+  .goat-mark {
     animation: none !important;
   }
 }

@@ -20,6 +20,10 @@ Feito para rodar de graça na **Vercel** com banco no **Supabase**.
    > Se você já tinha rodado uma versão anterior do schema (antes dos perfis existirem), rode também
    > o [`supabase/migration_perfis.sql`](./supabase/migration_perfis.sql) logo depois — ele adapta o
    > banco sem apagar os dados que já existem.
+   > Se você já tinha empresas cadastradas ANTES do funil detalhado (fases tipo "Lead → Conexão →
+   > Apresentação → Proposta → Contrato"), rode também o
+   > [`supabase/migration_funil.sql`](./supabase/migration_funil.sql) — ele cria a tabela de eventos,
+   > liga o gatilho automático e migra os nomes antigos de fase pros novos, sem perder nada.
 4. Vá em **Authentication → Providers** e confirme que **Email** está habilitado (já vem por padrão).
    - Se quiser pular a confirmação por e-mail (mais rápido para uso pessoal): em
      **Authentication → Settings**, desative "Confirm email".
@@ -86,6 +90,15 @@ Pronto, já pode usar.
 
 ## O que a plataforma faz
 
+- **Funil (planilha automática)** — cada vez que uma empresa muda de fase no kanban (ou é
+  cadastrada), o sistema registra sozinho um evento com a data. A partir disso, a aba **Funil**
+  mostra duas visões: um **funil visual** (barras mostrando quantas empresas chegaram em cada
+  fase, com a taxa de conversão calculada automaticamente entre uma fase e a próxima) e uma
+  **planilha** (fases nas linhas, dias nas colunas, exatamente como uma planilha de controle
+  manual — mas preenchida sozinha). Também dá pra lançar um evento manualmente (botão "+
+  Registrar evento"), pra casos que aconteceram fora do kanban.
+- **Fases do funil**: Lead → Conexão → Apresentação Agendada → Apresentação Realizada →
+  Proposta Agendada → Proposta Realizada → Contrato Assinado (+ Perdido, tratado à parte).
 - **Equipe** — cada integrante (Gabi, Vitor, Rafael) tem conta própria, com foto de perfil e
   animação de carregamento personalizada ao entrar. A aba **Equipe** mostra quantas empresas,
   contatos e fechamentos cada um fez, com a atividade mais recente.
@@ -93,10 +106,8 @@ Pronto, já pode usar.
   mas cada empresa e cada contato registrado fica atribuído a quem fez, então dá pra saber quem
   cadastrou cada lead e quem falou com cada empresa.
 - **Gerador de mensagens** — botão "✨ Gerar mensagem" em cada empresa (também disponível na
-  lista e no kanban). Detecta automaticamente a fase certa (primeiro contato, follow-up,
-  proposta, negociação, reconquista de lead esfriado ou cliente perdido) e sugere 3 variações de
-  mensagem já com o tom da Skema Consultoria Júnior, prontas pra copiar ou abrir direto no
-  WhatsApp.
+  lista e no kanban). Detecta automaticamente a fase certa e sugere 3 variações de mensagem já
+  com o tom da Skema Consultoria Júnior, prontas pra copiar ou abrir direto no WhatsApp.
 - **Painel** — visão geral do funil: valor total em negociação, quantas empresas em cada
   estágio, quais estão esfriando (sem contato há muito tempo) e próximos follow-ups.
 - **Empresas**

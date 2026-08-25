@@ -6,10 +6,28 @@ export interface Profile {
   created_at: string;
 }
 
-export type Stage = "lead" | "contato" | "proposta" | "negociacao" | "ganho" | "perdido";
+export type Stage =
+  | "lead"
+  | "conexao"
+  | "apres_agendada"
+  | "apres_realizada"
+  | "proposta_agendada"
+  | "proposta_realizada"
+  | "contrato"
+  | "perdido";
 export type Priority = "baixa" | "media" | "alta";
 export type CompanyStatus = "aberto" | "ganho" | "perdido";
 export type InteractionType = "whatsapp" | "email" | "ligacao" | "reuniao" | "outro";
+
+export interface StageEvent {
+  id: string;
+  user_id: string;
+  company_id: string;
+  stage: Stage;
+  occurred_at: string; // date (YYYY-MM-DD)
+  note: string | null;
+  created_at: string;
+}
 
 export interface Company {
   id: string;
@@ -48,14 +66,20 @@ export interface Task {
   created_at: string;
 }
 
-export const STAGES: { key: Stage; label: string }[] = [
-  { key: "lead", label: "Novo lead" },
-  { key: "contato", label: "Em contato" },
-  { key: "proposta", label: "Proposta enviada" },
-  { key: "negociacao", label: "Negociação" },
-  { key: "ganho", label: "Fechado (ganho)" },
-  { key: "perdido", label: "Perdido" },
+export const STAGES: { key: Stage; label: string; short: string }[] = [
+  { key: "lead", label: "Lead", short: "Lead" },
+  { key: "conexao", label: "Conexão", short: "Conexão" },
+  { key: "apres_agendada", label: "Apresentação agendada", short: "Apr. agendada" },
+  { key: "apres_realizada", label: "Apresentação realizada", short: "Apr. realizada" },
+  { key: "proposta_agendada", label: "Proposta agendada", short: "Prop. agendada" },
+  { key: "proposta_realizada", label: "Proposta realizada", short: "Prop. realizada" },
+  { key: "contrato", label: "Contrato assinado", short: "Contrato" },
+  { key: "perdido", label: "Perdido", short: "Perdido" },
 ];
+
+// as 7 fases que entram na contagem do funil/planilha (perdido fica de fora,
+// é tratado como "saída" do funil, não como progresso)
+export const FUNNEL_STAGES = STAGES.filter((s) => s.key !== "perdido");
 
 export const PRIORITIES: { key: Priority; label: string }[] = [
   { key: "alta", label: "Alta" },

@@ -59,7 +59,7 @@ function Equipe() {
     return profiles.map((profile) => {
       const myCompanies = companies.filter((c) => c.user_id === profile.id);
       const myInteractions = interactions.filter((it) => it.user_id === profile.id);
-      const won = myCompanies.filter((c) => c.stage === "ganho").length;
+      const won = myCompanies.filter((c) => c.stage === "contrato").length;
       return {
         profile,
         companiesCount: myCompanies.length,

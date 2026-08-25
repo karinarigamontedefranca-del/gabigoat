@@ -4,6 +4,8 @@ interface ThemeDef {
   label: string;
   accentText: string;
   accentBg: string;
+  accentSoft: string;
+  glowSoft: string;
   accentBorder: string;
   ring1: string;
   ring2: string;
@@ -18,6 +20,8 @@ export const THEMES: Record<ThemeKey, ThemeDef> = {
     label: "Gabi",
     accentText: "text-lime",
     accentBg: "bg-lime",
+    accentSoft: "bg-lime/70",
+    glowSoft: "bg-lime/5",
     accentBorder: "border-lime/20",
     ring1: "border-lime/20",
     ring2: "border-horn/10",
@@ -30,6 +34,8 @@ export const THEMES: Record<ThemeKey, ThemeDef> = {
     label: "Vitor",
     accentText: "text-sky-300",
     accentBg: "bg-sky-300",
+    accentSoft: "bg-sky-300/70",
+    glowSoft: "bg-sky-300/5",
     accentBorder: "border-sky-300/20",
     ring1: "border-sky-300/25",
     ring2: "border-sky-400/10",
@@ -42,6 +48,8 @@ export const THEMES: Record<ThemeKey, ThemeDef> = {
     label: "Rafael",
     accentText: "text-orange-300",
     accentBg: "bg-orange-300",
+    accentSoft: "bg-orange-300/70",
+    glowSoft: "bg-orange-300/5",
     accentBorder: "border-orange-300/20",
     ring1: "border-orange-300/25",
     ring2: "border-amber-400/10",

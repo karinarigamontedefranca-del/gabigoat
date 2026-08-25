@@ -51,7 +51,7 @@ create table if not exists companies (
   email text,
   segment text,
   source text,                -- de onde veio o lead (indicação, instagram, evento...)
-  stage text not null default 'lead',   -- lead | contato | proposta | negociacao | ganho | perdido
+  stage text not null default 'lead',   -- lead | conexao | apres_agendada | apres_realizada | proposta_agendada | proposta_realizada | contrato | perdido
   status text not null default 'aberto', -- aberto | ganho | perdido
   value numeric(12,2) default 0,        -- valor estimado da negociação
   priority text not null default 'media', -- baixa | media | alta
@@ -63,6 +63,47 @@ create table if not exists companies (
 create index if not exists companies_user_id_idx on companies(user_id);
 create index if not exists companies_stage_idx on companies(stage);
 create index if not exists companies_last_contact_idx on companies(last_contact_at);
+
+-- ------------------------------------------------------------
+-- EVENTOS DE FUNIL — é a "planilha" viva. Toda vez que uma empresa
+-- muda de fase (pelo kanban, pela edição, ou lançado manualmente),
+-- fica um registro aqui com a data. É a partir dessa tabela que o
+-- funil visual e a planilha dentro do site são calculados sozinhos.
+-- ------------------------------------------------------------
+create table if not exists stage_events (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references profiles(id) on delete cascade default auth.uid(),
+  company_id uuid not null references companies(id) on delete cascade,
+  stage text not null,
+  occurred_at date not null default current_date,
+  note text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists stage_events_company_idx on stage_events(company_id);
+create index if not exists stage_events_stage_idx on stage_events(stage);
+create index if not exists stage_events_date_idx on stage_events(occurred_at);
+
+-- gera um evento sozinho toda vez que uma empresa é criada (fase inicial)
+-- ou muda de fase — é isso que "mescla" o kanban com a planilha.
+create or replace function log_stage_event()
+returns trigger as $$
+begin
+  if (tg_op = 'INSERT') then
+    insert into stage_events (user_id, company_id, stage, occurred_at)
+      values (new.user_id, new.id, new.stage, current_date);
+  elsif (tg_op = 'UPDATE' and old.stage is distinct from new.stage) then
+    insert into stage_events (user_id, company_id, stage, occurred_at)
+      values (coalesce(auth.uid(), new.user_id), new.id, new.stage, current_date);
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists trg_log_stage_event on companies;
+create trigger trg_log_stage_event
+  after insert or update on companies
+  for each row execute function log_stage_event();
 
 -- ------------------------------------------------------------
 -- INTERAÇÕES (histórico de toda vez que ela falou com a empresa)
@@ -122,6 +163,7 @@ create trigger trg_touch_company_last_contact
 alter table companies enable row level security;
 alter table interactions enable row level security;
 alter table tasks enable row level security;
+alter table stage_events enable row level security;
 
 drop policy if exists "companies_select_own" on companies;
 drop policy if exists "companies_insert_own" on companies;
@@ -151,6 +193,14 @@ create policy "tasks_select_team" on tasks for select using (auth.role() = 'auth
 create policy "tasks_insert_team" on tasks for insert with check (auth.uid() = user_id);
 create policy "tasks_update_team" on tasks for update using (auth.role() = 'authenticated');
 create policy "tasks_delete_team" on tasks for delete using (auth.role() = 'authenticated');
+
+drop policy if exists "stage_events_select_team" on stage_events;
+drop policy if exists "stage_events_insert_team" on stage_events;
+drop policy if exists "stage_events_delete_team" on stage_events;
+
+create policy "stage_events_select_team" on stage_events for select using (auth.role() = 'authenticated');
+create policy "stage_events_insert_team" on stage_events for insert with check (auth.uid() = user_id);
+create policy "stage_events_delete_team" on stage_events for delete using (auth.uid() = user_id);
 
 -- ------------------------------------------------------------
 -- SEED — rode isso DEPOIS de criar as contas do Vitor e do Rafael

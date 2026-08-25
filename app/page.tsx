@@ -44,7 +44,7 @@ function Dashboard() {
   const openDeals = companies.filter((c) => c.status === "aberto");
   const pipelineValue = openDeals.reduce((sum, c) => sum + (c.value ?? 0), 0);
   const wonThisMonth = companies.filter((c) => {
-    if (c.stage !== "ganho") return false;
+    if (c.stage !== "contrato") return false;
     const d = new Date(c.created_at);
     const now = new Date();
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();

@@ -64,7 +64,7 @@ function Empresas() {
   }
 
   async function moveStage(companyId: string, stage: Stage) {
-    const status = stage === "ganho" ? "ganho" : stage === "perdido" ? "perdido" : "aberto";
+    const status = stage === "contrato" ? "ganho" : stage === "perdido" ? "perdido" : "aberto";
     setCompanies((prev) => prev.map((c) => (c.id === companyId ? { ...c, stage, status } : c)));
     await supabase.from("companies").update({ stage, status }).eq("id", companyId);
   }
@@ -138,7 +138,7 @@ function Empresas() {
                 }`}
               >
                 <div className="flex items-center justify-between px-1 mb-3">
-                  <h3 className="font-display font-semibold text-sm">{stage.label}</h3>
+                  <h3 className="font-display font-semibold text-sm">{stage.short}</h3>
                   <span className="text-xs text-muted font-mono">{items.length}</span>
                 </div>
                 <p className="px-1 text-xs text-muted font-mono mb-3">{formatCurrency(value)}</p>
