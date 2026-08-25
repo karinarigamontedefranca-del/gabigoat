@@ -84,6 +84,27 @@ create index if not exists stage_events_company_idx on stage_events(company_id);
 create index if not exists stage_events_stage_idx on stage_events(stage);
 create index if not exists stage_events_date_idx on stage_events(occurred_at);
 
+-- ------------------------------------------------------------
+-- METAS DE CONVERSÃO — a "taxa ideal" entre uma fase e a próxima,
+-- definida pela equipe. O relatório compara a realidade com isso
+-- pra apontar onde está o gargalo.
+-- ------------------------------------------------------------
+create table if not exists funnel_targets (
+  stage text primary key, -- a fase de "chegada" da conversão (ex: 'conexao' = meta de lead→conexão)
+  target_pct numeric(5,2) not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+alter table funnel_targets enable row level security;
+
+drop policy if exists "funnel_targets_select_team" on funnel_targets;
+drop policy if exists "funnel_targets_insert_team" on funnel_targets;
+drop policy if exists "funnel_targets_update_team" on funnel_targets;
+
+create policy "funnel_targets_select_team" on funnel_targets for select using (auth.role() = 'authenticated');
+create policy "funnel_targets_insert_team" on funnel_targets for insert with check (auth.role() = 'authenticated');
+create policy "funnel_targets_update_team" on funnel_targets for update using (auth.role() = 'authenticated');
+
 -- gera um evento sozinho toda vez que uma empresa é criada (fase inicial)
 -- ou muda de fase — é isso que "mescla" o kanban com a planilha.
 create or replace function log_stage_event()

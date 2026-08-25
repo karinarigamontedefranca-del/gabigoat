@@ -92,3 +92,88 @@ export function filterEventsByRange(
     return true;
   });
 }
+
+// acha o "degrau" com a pior taxa de conversão — é o gargalo do funil
+export function findBottleneck(steps: FunnelStep[]): FunnelStep | null {
+  const candidates = steps.filter((_, i) => i > 0 && steps[i - 1].count >= 3); // exige uma amostra mínima
+  if (candidates.length === 0) return null;
+  return candidates.reduce((worst, s) => (s.pctOfPrevious < worst.pctOfPrevious ? s : worst));
+}
+
+export interface WeekBucket {
+  label: string; // ex: "11/08"
+  count: number;
+}
+
+// quantidade de novos leads por semana, últimas N semanas
+export function buildWeeklyLeads(events: StageEvent[], weeks = 8): WeekBucket[] {
+  const leadEvents = events.filter((e) => e.stage === "lead");
+  const today = new Date();
+  const buckets: WeekBucket[] = [];
+
+  for (let i = weeks - 1; i >= 0; i--) {
+    const end = new Date(today);
+    end.setDate(end.getDate() - i * 7);
+    const start = new Date(end);
+    start.setDate(start.getDate() - 6);
+    const startKey = start.toISOString().slice(0, 10);
+    const endKey = end.toISOString().slice(0, 10);
+    const count = leadEvents.filter((e) => e.occurred_at >= startKey && e.occurred_at <= endKey).length;
+    buckets.push({
+      label: start.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+      count,
+    });
+  }
+  return buckets;
+}
+
+export interface StageTransitionTime {
+  fromStage: Stage;
+  fromLabel: string;
+  toStage: Stage;
+  toLabel: string;
+  avgDays: number | null;
+  sampleSize: number;
+}
+
+// tempo médio (em dias) que as empresas levam pra ir de uma fase pra outra
+export function buildAvgTransitionTimes(events: StageEvent[]): StageTransitionTime[] {
+  // primeira data em que cada empresa alcançou cada fase
+  const firstReached = new Map<string, Map<Stage, string>>();
+  for (const e of events) {
+    if (!firstReached.has(e.company_id)) firstReached.set(e.company_id, new Map());
+    const companyMap = firstReached.get(e.company_id)!;
+    const current = companyMap.get(e.stage);
+    if (!current || e.occurred_at < current) {
+      companyMap.set(e.stage, e.occurred_at);
+    }
+  }
+
+  const results: StageTransitionTime[] = [];
+  for (let i = 0; i < FUNNEL_STAGES.length - 1; i++) {
+    const from = FUNNEL_STAGES[i];
+    const to = FUNNEL_STAGES[i + 1];
+    const diffs: number[] = [];
+
+    firstReached.forEach((companyMap) => {
+      const fromDate = companyMap.get(from.key);
+      const toDate = companyMap.get(to.key);
+      if (fromDate && toDate) {
+        const diff = Math.round(
+          (new Date(toDate).getTime() - new Date(fromDate).getTime()) / (1000 * 60 * 60 * 24)
+        );
+        if (diff >= 0) diffs.push(diff);
+      }
+    });
+
+    results.push({
+      fromStage: from.key,
+      fromLabel: from.label,
+      toStage: to.key,
+      toLabel: to.label,
+      avgDays: diffs.length > 0 ? diffs.reduce((a, b) => a + b, 0) / diffs.length : null,
+      sampleSize: diffs.length,
+    });
+  }
+  return results;
+}

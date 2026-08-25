@@ -24,6 +24,9 @@ Feito para rodar de graça na **Vercel** com banco no **Supabase**.
    > Apresentação → Proposta → Contrato"), rode também o
    > [`supabase/migration_funil.sql`](./supabase/migration_funil.sql) — ele cria a tabela de eventos,
    > liga o gatilho automático e migra os nomes antigos de fase pros novos, sem perder nada.
+   > Se você já tinha rodado o schema antes da aba Relatório existir, rode também o
+   > [`supabase/migration_relatorio.sql`](./supabase/migration_relatorio.sql) — cria só a tabela
+   > de metas de conversão.
 4. Vá em **Authentication → Providers** e confirme que **Email** está habilitado (já vem por padrão).
    - Se quiser pular a confirmação por e-mail (mais rápido para uso pessoal): em
      **Authentication → Settings**, desative "Confirm email".
@@ -90,6 +93,11 @@ Pronto, já pode usar.
 
 ## O que a plataforma faz
 
+- **Relatório** — a leitura automática dos números do funil: um resumo em texto (quantos leads
+  entraram, quantos viraram contrato, onde está o maior gargalo), gráfico de leads por semana,
+  tempo médio que as empresas levam pra avançar de uma fase pra outra, e uma tabela de conversão
+  por fase onde dá pra definir a **meta ideal** de cada passagem — o relatório avisa quando a
+  conversão real está abaixo da meta.
 - **Funil (planilha automática)** — cada vez que uma empresa muda de fase no kanban (ou é
   cadastrada), o sistema registra sozinho um evento com a data. A partir disso, a aba **Funil**
   mostra duas visões: um **funil visual** (barras mostrando quantas empresas chegaram em cada

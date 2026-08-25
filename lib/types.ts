@@ -29,6 +29,12 @@ export interface StageEvent {
   created_at: string;
 }
 
+export interface FunnelTarget {
+  stage: Stage;
+  target_pct: number;
+  updated_at: string;
+}
+
 export interface Company {
   id: string;
   user_id: string;
