@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import AuthGuard from "@/components/AuthGuard";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/lib/supabaseClient";
@@ -27,8 +28,12 @@ export default function CompanyDetailPage() {
 function CompanyDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const [company, setCompany] = useState<Company | null>(null);
-  const [interactions, setInteractions] = useState<Interaction[]>([]);
+  const [company, setCompany] = useState<(Company & { profiles: { display_name: string } | null }) | null>(
+    null
+  );
+  const [interactions, setInteractions] = useState<
+    (Interaction & { profiles: { display_name: string; avatar_url: string | null } | null })[]
+  >([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
@@ -43,10 +48,10 @@ function CompanyDetail() {
   async function load() {
     setLoading(true);
     const [{ data: c }, { data: ints }, { data: t }] = await Promise.all([
-      supabase.from("companies").select("*").eq("id", id).single(),
+      supabase.from("companies").select("*, profiles(display_name)").eq("id", id).single(),
       supabase
         .from("interactions")
-        .select("*")
+        .select("*, profiles(display_name, avatar_url)")
         .eq("company_id", id)
         .order("created_at", { ascending: false }),
       supabase
@@ -56,8 +61,8 @@ function CompanyDetail() {
         .order("done", { ascending: true })
         .order("due_date", { ascending: true }),
     ]);
-    setCompany(c ?? null);
-    setInteractions(ints ?? []);
+    setCompany((c as typeof company) ?? null);
+    setInteractions((ints as typeof interactions) ?? []);
     setTasks(t ?? []);
     setLoading(false);
   }
@@ -102,6 +107,12 @@ function CompanyDetail() {
                 <span className="text-muted">{company.segment}</span>
               </>
             )}
+            {company.profiles && (
+              <>
+                <span className="text-muted">·</span>
+                <span className="text-muted">cadastrada por {company.profiles.display_name}</span>
+              </>
+            )}
           </div>
         </div>
         <div className="flex gap-2">
@@ -135,6 +146,19 @@ function CompanyDetail() {
                         <span className="chip bg-pasture border border-pasture-border text-cream text-xs">
                           {label}
                         </span>
+                        {it.profiles && (
+                          <span className="text-xs text-muted flex items-center gap-1.5">
+                            <span className="w-4 h-4 rounded-full overflow-hidden inline-block relative shrink-0">
+                              <Image
+                                src={it.profiles.avatar_url || "/logo.png"}
+                                alt={it.profiles.display_name}
+                                fill
+                                className="object-cover"
+                              />
+                            </span>
+                            {it.profiles.display_name}
+                          </span>
+                        )}
                         <span className="text-xs text-muted font-mono">{formatDateTime(it.created_at)}</span>
                       </div>
                       {it.note && <p className="text-sm text-cream/90">{it.note}</p>}

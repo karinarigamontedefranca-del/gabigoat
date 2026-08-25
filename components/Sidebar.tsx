@@ -4,16 +4,19 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "@/components/AuthProvider";
 
 const NAV = [
   { href: "/", label: "Painel", icon: "◆" },
   { href: "/empresas", label: "Empresas", icon: "▤" },
   { href: "/tarefas", label: "Follow-ups", icon: "✓" },
+  { href: "/equipe", label: "Equipe", icon: "◍" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { profile } = useAuth();
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -52,7 +55,21 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="px-3 py-4 border-t border-pasture-border">
+      <div className="px-3 py-4 border-t border-pasture-border space-y-3">
+        {profile && (
+          <div className="flex items-center gap-2.5 px-2">
+            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-pasture-border">
+              <Image
+                src={profile.avatar_url || "/logo.png"}
+                alt={profile.display_name}
+                width={32}
+                height={32}
+                className="object-cover w-full h-full"
+              />
+            </div>
+            <span className="text-sm font-medium text-cream truncate">{profile.display_name}</span>
+          </div>
+        )}
         <button onClick={handleLogout} className="btn-ghost w-full justify-start">
           ← Sair
         </button>

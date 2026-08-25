@@ -1,3 +1,11 @@
+export interface Profile {
+  id: string;
+  display_name: string;
+  avatar_url: string | null;
+  theme: "default" | "vitor" | "rafael";
+  created_at: string;
+}
+
 export type Stage = "lead" | "contato" | "proposta" | "negociacao" | "ganho" | "perdido";
 export type Priority = "baixa" | "media" | "alta";
 export type CompanyStatus = "aberto" | "ganho" | "perdido";

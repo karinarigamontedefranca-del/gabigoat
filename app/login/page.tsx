@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import LoadingScreen from "@/components/LoadingScreen";
+import { Profile } from "@/lib/types";
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [showLoading, setShowLoading] = useState(false);
+  const [loggedProfile, setLoggedProfile] = useState<Profile | null>(null);
   const router = useRouter();
 
   async function handleSubmit(e: FormEvent) {
@@ -23,11 +25,19 @@ export default function LoginPage() {
     setLoading(true);
 
     if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
       if (error) {
         setError("E-mail ou senha incorretos.");
         return;
+      }
+      if (signInData.user) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", signInData.user.id)
+          .single();
+        setLoggedProfile((profileData as Profile) ?? null);
       }
       setShowLoading(true);
     } else {
@@ -43,7 +53,14 @@ export default function LoginPage() {
   }
 
   if (showLoading) {
-    return <LoadingScreen onDone={() => router.replace("/")} />;
+    return (
+      <LoadingScreen
+        onDone={() => router.replace("/")}
+        avatarUrl={loggedProfile?.avatar_url}
+        displayName={loggedProfile?.display_name}
+        theme={loggedProfile?.theme}
+      />
+    );
   }
 
   return (

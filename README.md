@@ -13,15 +13,45 @@ Feito para rodar de graça na **Vercel** com banco no **Supabase**.
 1. Crie uma conta em [supabase.com](https://supabase.com) e crie um novo projeto (grátis).
 2. No painel do projeto, vá em **SQL Editor** → **New query**.
 3. Cole todo o conteúdo do arquivo [`supabase/schema.sql`](./supabase/schema.sql) e clique em **Run**.
-   Isso cria as tabelas `companies`, `interactions`, `tasks`, os índices, o gatilho que
-   atualiza automaticamente "último contato" e as regras de segurança (RLS) — cada
-   usuária só vê os próprios dados.
+   Isso cria as tabelas `profiles`, `companies`, `interactions`, `tasks`, os índices, o gatilho que
+   cria um perfil automaticamente pra cada conta nova, o gatilho que atualiza "último contato", e as
+   regras de segurança (RLS) — a equipe toda compartilha o mesmo funil, mas cada ação fica registrada
+   em nome de quem fez.
+   > Se você já tinha rodado uma versão anterior do schema (antes dos perfis existirem), rode também
+   > o [`supabase/migration_perfis.sql`](./supabase/migration_perfis.sql) logo depois — ele adapta o
+   > banco sem apagar os dados que já existem.
 4. Vá em **Authentication → Providers** e confirme que **Email** está habilitado (já vem por padrão).
    - Se quiser pular a confirmação por e-mail (mais rápido para uso pessoal): em
      **Authentication → Settings**, desative "Confirm email".
-5. Vá em **Project Settings → API** e copie:
+5. Vá em **Project Settings → API** (ou **Data API**) e copie:
    - `Project URL`
-   - `anon public` key
+   - a chave `anon public` / **Publishable key**
+
+### Criando as contas da equipe
+
+Esta versão já vem preparada para 3 perfis: Gabi, Vitor e Rafael. Crie as contas do Vitor e do
+Rafael direto no painel do Supabase:
+
+1. Vá em **Authentication → Users → Add user**.
+2. Crie a conta `vitor1.oliveira@skema.edu` com a senha `thegoats` (marque "Auto Confirm User").
+3. Crie a conta `rafael.manhaes@skema.edu` com a senha `thegoats` (marque "Auto Confirm User").
+4. Volte no **SQL Editor** e rode este bloco (ele já está comentado no fim do `schema.sql`,
+   troque só o e-mail da Gabi pelo e-mail real dela):
+
+```sql
+update profiles set display_name = 'Vitor', avatar_url = '/avatars/vitor.png', theme = 'vitor'
+  where id = (select id from auth.users where email = 'vitor1.oliveira@skema.edu');
+
+update profiles set display_name = 'Rafael', avatar_url = '/avatars/rafael.png', theme = 'rafael'
+  where id = (select id from auth.users where email = 'rafael.manhaes@skema.edu');
+
+update profiles set display_name = 'Gabi', avatar_url = '/logo.png', theme = 'default'
+  where id = (select id from auth.users where email = 'EMAIL_DA_GABI_AQUI');
+```
+
+Pronto — quando cada um logar, vai ver a própria foto e uma animação de carregamento com cor
+diferente (Gabi = verde-limão, Vitor = azul-gelo, Rafael = laranja-fogo), e a Gabi consegue ver
+o que cada um andou fazendo na aba **Equipe**.
 
 ---
 
@@ -56,6 +86,17 @@ Pronto, já pode usar.
 
 ## O que a plataforma faz
 
+- **Equipe** — cada integrante (Gabi, Vitor, Rafael) tem conta própria, com foto de perfil e
+  animação de carregamento personalizada ao entrar. A aba **Equipe** mostra quantas empresas,
+  contatos e fechamentos cada um fez, com a atividade mais recente.
+- **Funil compartilhado** — todo mundo vê o mesmo funil (não é um funil separado por pessoa),
+  mas cada empresa e cada contato registrado fica atribuído a quem fez, então dá pra saber quem
+  cadastrou cada lead e quem falou com cada empresa.
+- **Gerador de mensagens** — botão "✨ Gerar mensagem" em cada empresa (também disponível na
+  lista e no kanban). Detecta automaticamente a fase certa (primeiro contato, follow-up,
+  proposta, negociação, reconquista de lead esfriado ou cliente perdido) e sugere 3 variações de
+  mensagem já com o tom da Skema Consultoria Júnior, prontas pra copiar ou abrir direto no
+  WhatsApp.
 - **Painel** — visão geral do funil: valor total em negociação, quantas empresas em cada
   estágio, quais estão esfriando (sem contato há muito tempo) e próximos follow-ups.
 - **Empresas**
