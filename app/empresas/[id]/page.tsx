@@ -12,6 +12,7 @@ import { StreakBadge, PriorityBadge } from "@/components/Badges";
 import CompanyModal from "@/components/CompanyModal";
 import InteractionModal from "@/components/InteractionModal";
 import TaskModal from "@/components/TaskModal";
+import MessageGeneratorModal from "@/components/MessageGeneratorModal";
 
 export default function CompanyDetailPage() {
   return (
@@ -33,6 +34,7 @@ function CompanyDetail() {
   const [editOpen, setEditOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [taskOpen, setTaskOpen] = useState(false);
+  const [messageOpen, setMessageOpen] = useState(false);
 
   useEffect(() => {
     load();
@@ -103,7 +105,10 @@ function CompanyDetail() {
           </div>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setContactOpen(true)} className="btn-primary">
+          <button onClick={() => setMessageOpen(true)} className="btn-primary">
+            ✨ Gerar mensagem
+          </button>
+          <button onClick={() => setContactOpen(true)} className="btn-secondary">
             + Registrar contato
           </button>
           <button onClick={() => setEditOpen(true)} className="btn-secondary">
@@ -208,6 +213,11 @@ function CompanyDetail() {
         </div>
       </div>
 
+      <MessageGeneratorModal
+        open={messageOpen}
+        onClose={() => setMessageOpen(false)}
+        company={company}
+      />
       <CompanyModal open={editOpen} onClose={() => setEditOpen(false)} onSaved={load} company={company} />
       <InteractionModal
         open={contactOpen}

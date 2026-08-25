@@ -9,6 +9,7 @@ import { Company, STAGES, Stage } from "@/lib/types";
 import { formatCurrency, whatsappLink } from "@/lib/utils";
 import { StreakBadge, PriorityBadge } from "@/components/Badges";
 import CompanyModal from "@/components/CompanyModal";
+import MessageGeneratorModal from "@/components/MessageGeneratorModal";
 
 export default function EmpresasPage() {
   return (
@@ -27,6 +28,7 @@ function Empresas() {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Company | null>(null);
+  const [messagingFor, setMessagingFor] = useState<Company | null>(null);
   const [dragOverStage, setDragOverStage] = useState<Stage | null>(null);
 
   useEffect(() => {
@@ -147,6 +149,7 @@ function Empresas() {
                       key={c.id}
                       draggable
                       onDragStart={(e) => e.dataTransfer.setData("text/plain", c.id)}
+                      className="relative group"
                     >
                       <Link
                         href={`/empresas/${c.id}`}
@@ -161,6 +164,13 @@ function Empresas() {
                         ) : null}
                         <StreakBadge lastContactAt={c.last_contact_at} />
                       </Link>
+                      <button
+                        onClick={() => setMessagingFor(c)}
+                        title="Gerar mensagem"
+                        className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 rounded-md bg-pasture-lighter border border-pasture-border hover:border-lime/40 hover:text-lime text-xs flex items-center justify-center"
+                      >
+                        ✨
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -217,7 +227,10 @@ function Empresas() {
                     <td className="px-4 py-3">
                       <StreakBadge lastContactAt={c.last_contact_at} />
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                      <button onClick={() => setMessagingFor(c)} className="btn-ghost">
+                        ✨ Mensagem
+                      </button>
                       <button onClick={() => openEdit(c)} className="btn-ghost">
                         Editar
                       </button>
@@ -243,6 +256,13 @@ function Empresas() {
         onSaved={load}
         company={editing}
       />
+      {messagingFor && (
+        <MessageGeneratorModal
+          open={!!messagingFor}
+          onClose={() => setMessagingFor(null)}
+          company={messagingFor}
+        />
+      )}
     </div>
   );
 }
