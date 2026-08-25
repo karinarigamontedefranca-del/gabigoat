@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+* {
+  border-color: theme("colors.pasture.border");
+}
+
+body {
+  background-color: #0f1b14;
+  background-image: radial-gradient(rgba(244, 241, 232, 0.035) 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+
+::selection {
+  background: #c8ff4d;
+  color: #0f1b14;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0f1b14;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a3b2e;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a4f3f;
+}
+
+:focus-visible {
+  outline: 2px solid #c8ff4d;
+  outline-offset: 2px;
+}
+
+@layer components {
+  .card {
+    @apply bg-pasture-light border border-pasture-border rounded-2xl shadow-card;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-lime text-pasture font-display font-semibold px-4 py-2.5 text-sm hover:bg-lime-dim transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-pasture-lighter border border-pasture-border text-cream font-medium px-4 py-2.5 text-sm hover:border-lime/40 hover:text-lime transition-colors;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg text-muted font-medium px-3 py-1.5 text-sm hover:text-cream hover:bg-pasture-lighter transition-colors;
+  }
+
+  .input {
+    @apply w-full bg-pasture border border-pasture-border rounded-lg px-3 py-2.5 text-sm text-cream placeholder:text-muted/60 focus:border-lime/50 focus:outline-none transition-colors;
+  }
+
+  .label {
+    @apply block text-xs font-medium text-muted uppercase tracking-wide mb-1.5;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+
+  .scoreboard-number {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@keyframes goat-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.goat-mark {
+  animation: goat-bounce 3s ease-in-out infinite;
+}
