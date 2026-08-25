@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
-import GoatMark from "./GoatMark";
 
 const NAV = [
   { href: "/", label: "Painel", icon: "◆" },
@@ -23,7 +23,9 @@ export default function Sidebar() {
   return (
     <aside className="w-64 shrink-0 border-r border-pasture-border bg-pasture-light/40 flex flex-col h-screen sticky top-0">
       <div className="px-6 py-6 flex items-center gap-2.5 border-b border-pasture-border">
-        <GoatMark className="w-8 h-8 goat-mark" />
+        <div className="w-9 h-9 rounded-full overflow-hidden goat-mark shrink-0">
+          <Image src="/logo.png" alt="GabiGoat Lab" width={36} height={36} className="object-cover w-full h-full" />
+        </div>
         <div>
           <div className="font-display font-bold text-lg leading-none">GabiGoat</div>
           <div className="font-mono text-[10px] tracking-[0.2em] text-lime uppercase">Lab</div>

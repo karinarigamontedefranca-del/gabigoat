@@ -2,8 +2,9 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
-import GoatMark from "@/components/GoatMark";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [showLoading, setShowLoading] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: FormEvent) {
@@ -27,7 +29,7 @@ export default function LoginPage() {
         setError("E-mail ou senha incorretos.");
         return;
       }
-      router.replace("/");
+      setShowLoading(true);
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
       setLoading(false);
@@ -40,11 +42,17 @@ export default function LoginPage() {
     }
   }
 
+  if (showLoading) {
+    return <LoadingScreen onDone={() => router.replace("/")} />;
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <GoatMark className="w-14 h-14 mb-3" />
+          <div className="w-16 h-16 rounded-full overflow-hidden mb-3 shadow-glow">
+            <Image src="/logo.png" alt="GabiGoat Lab" width={64} height={64} className="object-cover w-full h-full" />
+          </div>
           <h1 className="font-display font-bold text-2xl">GabiGoat Lab</h1>
           <p className="text-muted text-sm mt-1">funil de vendas sob controle</p>
         </div>
